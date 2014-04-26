@@ -34,6 +34,7 @@
             display: inline-block;
             height: 210px;
             margin: 0 5px;
+            overflow: hidden;
             position: relative;
             width: 30px;
         }
@@ -75,16 +76,34 @@
                     displayElement  = doc.getElementById('display'),
                     rollDisplay1    = displayElement.firstElementChild,
                     roll1           = rollDisplay1.firstElementChild,
-                    toll1StartTop   = parseInt(window.getComputedStyle(roll1, null).top),
+                    rolls           = displayElement.getElementsByClassName('roll'),
+                    roll1StartTop   = parseInt(window.getComputedStyle(roll1, null).top),
                     rollDisplayHigh = parseInt(window.getComputedStyle(rollDisplay1, null).height),
                     rollCellHigh    = parseInt(window.getComputedStyle(roll1.firstElementChild, null).height),
 
                     runRoll = function() {
-                        var iterationTime = 250,    //mSec
-                            totalShift    = 11520,  //px
-                            timeRolling   = 6000,   //mSec
+                        var iterationTime = 50,     //mSec
+                            totalShift    = 16500,  //px
+                            timeRolling   = 32000,  //mSec
 
-                            iterationTotalCount = window.Math.ceil(timeRolling / iterationTime), //24
+                            randParams = [
+                                {
+                                    minTime: 10,
+                                    maxTime: 20,
+                                    minShift: 50,
+                                    maxShift: 170
+                                },
+                                {
+                                    maxTime: 30,
+                                    maxShift: 200
+                                },
+                                {
+                                    maxTime: 40,
+                                    maxShift: 320
+                                }
+                            ],
+
+                            iterationTotalCount = window.Math.ceil(timeRolling / iterationTime),
                             startSpeed          = (2 * totalShift) / iterationTotalCount,
                             deceleration        = startSpeed / iterationTotalCount,
 
@@ -123,36 +142,36 @@
                                             movedCount += additionalMoved;
                                             additionalShift = additionalShift - additionalMoved * rollCellHigh;
                                         }
-                                        currentAdditionalShift = additionalShift;
-                                        //TODO: mov roll-element (roll1)
+                                        roll1.style.top =
+                                                (roll1StartTop + (currentAdditionalShift = additionalShift)) + 'px';
                                     }
 
-                                    if (movedCount > 0) {
-                                        //TODO: move elements
+                                    while (movedCount-- > 0) {
+                                        roll1.insertBefore(roll1.lastElementChild, roll1.firstElementChild);
                                     }
                                 }
 
 
                                 passedShift = currentShift;
-                                console.table(
-                                        [{
-                                            iNum: iterationCurrentNum,
-                                            curShift: currentShift,
-                                            reqShift: requiredShift,
-                                            movCount: movedCount,
-                                            movCount1: window.Math.floor(requiredShift / rollCellHigh),
-                                            addShift: additionalShift,
-                                            addShift1: requiredShift - window.Math.floor(requiredShift / rollCellHigh) * rollCellHigh,
-                                            currAddShift: currentAdditionalShift
-                                        }]
-                                );
+//                                console.table(
+//                                        [{
+//                                            iNum: iterationCurrentNum,
+//                                            curShift: currentShift,
+//                                            reqShift: requiredShift,
+//                                            //movCount: movedCount,
+//                                            movCount1: window.Math.floor(requiredShift / rollCellHigh),
+//                                            addShift: additionalShift,
+//                                            addShift1: requiredShift - window.Math.floor(requiredShift / rollCellHigh) * rollCellHigh,
+//                                            currAddShift: currentAdditionalShift
+//                                        }]
+//                                );
 
                             };
 
                         timerId = window.setInterval(intervalRotator, iterationTime);
                         intervalRotator();
 
-                        console.log(toll1StartTop, startSpeed, deceleration);
+                        console.log(rolls);
 
 
                     };
@@ -171,6 +190,26 @@
     <div class="game-area">
 
         <div class="display" id="display">
+            <div class="roll-display">
+                <div class="roll">
+                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell ">           <pre>2</pre> </div>
+                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell ">           <pre>1</pre> </div>
+                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell">            <pre>C</pre> </div>
+                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell">            <pre>7</pre> </div>
+                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell ">           <pre>1</pre> </div>
+                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell ">           <pre>3</pre> </div>
+                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell ">           <pre>2</pre> </div>
+                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell ">           <pre>1</pre> </div>
+                </div>
+            </div>
             <div class="roll-display">
                 <div class="roll">
                     <div class="roll-cell empty-cell"> <pre> </pre> </div>
