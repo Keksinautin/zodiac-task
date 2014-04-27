@@ -1,0 +1,108 @@
+body {
+	margin: 0;
+	padding: 0;
+}
+
+pre {
+	margin: 0;
+	padding: 0;
+}
+
+button {
+	cursor: pointer;
+	margin: 0;
+}
+
+.game-area {
+	background-color: #EEE;
+	margin: auto;
+	padding: 1px;
+	position: relative;
+	text-align: center;
+	width: 200px;
+}
+
+.display {
+	display: inline-block;
+	margin: 5px;
+	position: relative;
+	text-align: center;
+	width: 160px;
+}
+
+
+.roll-display {
+	background-color: #DFF0D8;
+	border: 2px solid #444444;
+	display: inline-block;
+	height: 210px;
+	margin: 0 5px;
+	overflow: hidden;
+	position: relative;
+	width: 30px;
+}
+
+.roll {
+	position: absolute;
+	top: -120px;
+}
+
+.roll-cell {
+	font-size: 24px;
+	font-weight: bold;
+	height: 30px;
+	text-align: center;
+	width: 30px;
+	color: #8A6D3B;
+}
+
+.empty-cell {
+	color: #AAAAAA;
+}
+
+.finish-line {
+	border: 1px solid #3C763D;
+	position: absolute;
+	top: 105px;
+	width: 160px;
+}
+
+.start-rolling {
+	background-color: #428BCA;
+	border-color: #357EBD;
+	color: #FFFFFF;
+	font-weight: bold;
+	margin: 5px 0 10px;
+	padding: 4px;
+	border-radius: 4px;
+}
+
+.start-rolling:hover {
+	background-color: #3276B1;
+	border-color: #285E8E;
+	color: #FFFFFF;
+}
+
+.rate-display {
+	margin: 5px 0;
+}
+
+.rate-value {
+	font-size: 20px;
+	margin: 0 10px;
+	vertical-align: middle;
+}
+
+.rate-btn {
+
+}
+
+.score-display {
+	margin: 5px 0;
+}
+
+.score-display > div {
+	display: inline-block;
+	font-size: 16px;
+	margin: 5px;
+}

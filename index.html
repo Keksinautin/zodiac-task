@@ -1,299 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Zodiac test 376SU-M66AC-JOLDJ-UEH7</title>
-
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
-
-        pre {
-            margin: 0;
-            padding: 0;
-        }
-
-        .game-area {
-            background-color: #DDDDDD;
-            margin: auto;
-            padding: 1px;
-            position: relative;
-            width: 500px;
-        }
-
-        .display {
-            margin: 40px 5px;
-            position: relative;
-            text-align: center;
-            width: 160px;
-        }
-
-
-        .roll-display {
-            border: 2px solid #444444;
-            display: inline-block;
-            height: 210px;
-            margin: 0 5px;
-            overflow: hidden;
-            position: relative;
-            width: 30px;
-        }
-
-        .roll {
-            position: absolute;
-            top: -120px;
-        }
-
-        .roll-cell {
-            font-size: 24px;
-            font-weight: bold;
-            height: 30px;
-            text-align: center;
-            width: 30px;
-            color: #8A6D3B;
-        }
-
-        .empty-cell {
-            color: #888;
-        }
-
-        .finish-line {
-            border: 1px solid #3C763D;
-            position: absolute;
-            top: 105px;
-            width: 160px;
-        }
-
-    </style>
-    <script>
-        //noinspection ThisExpressionReferencesGlobalObjectJS
-        (function (window, undefined){
-            'use strict';
-
-            window.onload = function(){
-                var doc  = window.document,
-                    Math = window.Math,
-
-                    displayElement  = doc.getElementById('display'),
-                    rollFirst       = displayElement.firstElementChild.firstElementChild,
-                    rolls           = displayElement.getElementsByClassName('roll'),
-                    rollStartTop    = parseInt(window.getComputedStyle(rollFirst, null).top),
-                    rollCellHigh    = parseInt(window.getComputedStyle(rollFirst.firstElementChild, null).height),
-
-                    getIntRand = function(min, max) {
-                        return Math.floor(Math.random() * (max - min + 1) + min);
-                    },
-
-                    runRoll = function() {
-                        var iterationTime = 50, //mSec
-
-                            randParams = [
-                                {
-                                    minTime:  10,
-                                    maxTime:  20,
-                                    minShift: 50,
-                                    maxShift: 80
-                                },
-                                {
-                                    maxTime:  30,
-                                    maxShift: 110
-                                },
-                                {
-                                    maxTime:  40,
-                                    maxShift: 140
-                                }
-                            ],
-                            rollingParams = [
-                                {
-                                    timeRolling:            0,
-                                    totalShift:             0,
-                                    iterationTotalCount:    0,
-                                    startSpeed:             0,
-                                    deceleration:           0,
-                                    currentAdditionalShift: 0,
-                                    passedShift:            0
-                                }
-                            ],
-
-                            //iterations global vars
-                            iterationCurrentNum = 0,
-                            maxIterationCount   = 0,
-                            timerId,
-
-                            //cycle vars
-                            rollIndex = 0,
-                            roll,
-                            prevMinTime,
-                            prevMinShift,
-                            rollRandParams,
-                            curRollingParams,
-
-                            intervalRotator = function(){
-                                var currentShift,
-                                    requiredShift,
-                                    movedCount,
-                                    additionalShift,
-                                    additionalMoved;
-
-                                if (++iterationCurrentNum === maxIterationCount) {
-                                    window.clearInterval(timerId);
-                                }
-
-                                for (rollIndex = 0; rollIndex < rolls.length; rollIndex++) {
-                                    curRollingParams = rollingParams[rollIndex];
-                                    roll             = rolls[rollIndex];
-
-                                    if (iterationCurrentNum <= curRollingParams.iterationTotalCount) {
-                                        if (iterationCurrentNum === curRollingParams.iterationTotalCount) {
-                                            currentShift = curRollingParams.totalShift;
-                                        } else {
-                                            currentShift = Math.round(
-                                              curRollingParams.startSpeed * iterationCurrentNum -
-                                                (curRollingParams.deceleration * Math.pow(iterationCurrentNum, 2)) / 2
-                                            );
-                                        }
-
-                                        requiredShift = currentShift - curRollingParams.passedShift;
-
-                                        if (requiredShift > 0) {
-                                            movedCount = Math.floor(requiredShift / rollCellHigh);
-                                            additionalShift = requiredShift - movedCount * rollCellHigh +
-                                                    curRollingParams.currentAdditionalShift;
-
-                                            if (additionalShift > 0) {
-                                                if (additionalShift >= rollCellHigh) {
-                                                    additionalMoved = Math.floor(additionalShift / rollCellHigh);
-                                                    movedCount += additionalMoved;
-                                                    additionalShift = additionalShift - additionalMoved * rollCellHigh;
-                                                }
-                                                roll.style.top =
-                                                    (rollStartTop +
-                                                        (curRollingParams.currentAdditionalShift = additionalShift)
-                                                    ) + 'px';
-                                            }
-
-                                            while (movedCount-- > 0) {
-                                                roll.insertBefore(roll.lastElementChild, roll.firstElementChild);
-                                            }
-                                        }
-
-                                        curRollingParams.passedShift = currentShift;
-                                    }
-                                }
-                            };
-
-                        for (rollIndex = 0; rollIndex < rolls.length; rollIndex++) {
-                            rollingParams[rollIndex] == null && (rollingParams[rollIndex] = {});
-                            curRollingParams = rollingParams[rollIndex];
-                            rollRandParams   = randParams[rollIndex];
-
-                            prevMinTime = getIntRand(
-                                rollRandParams.minTime == null ? prevMinTime + 1 : rollRandParams.minTime,
-                                rollRandParams.maxTime
-                            );
-                            prevMinShift = getIntRand(
-                                rollRandParams.minShift == null ? prevMinShift + 1 : rollRandParams.minShift,
-                                rollRandParams.maxShift
-                            );
-
-                            curRollingParams.timeRolling = prevMinTime * 1000;
-                            curRollingParams.totalShift  = rollCellHigh * 2 * prevMinShift;
-
-                            curRollingParams.iterationTotalCount = Math.ceil(
-                                    curRollingParams.timeRolling / iterationTime
-                            );
-                            if (curRollingParams.iterationTotalCount > maxIterationCount) {
-                                maxIterationCount = curRollingParams.iterationTotalCount;
-                            }
-
-                            curRollingParams.startSpeed =
-                                    (2 * curRollingParams.totalShift) / curRollingParams.iterationTotalCount;
-                            curRollingParams.deceleration =
-                                    curRollingParams.startSpeed / curRollingParams.iterationTotalCount;
-
-                            curRollingParams.currentAdditionalShift = 0;
-                            curRollingParams.passedShift = 0;
-                        }
-
-                        timerId = window.setInterval(intervalRotator, iterationTime);
-                        intervalRotator();
-                    };
-
-                runRoll();
-            };
-        })(this);
-
-    </script>
+    <link href="style.css" rel="stylesheet">
+    <script src="script.js"></script>
 </head>
 <body>
 
     <div class="game-area">
+        <div class="score-display">
+            <div>Bank: <span id="total-score">100</span></div>
+            <div>Win: <span id="last-score">0</span></div>
+        </div>
+
+        <div class="rate-display">
+            <!--<button class="rate-btn" id="down-rate" type="button">down</button>-->
+            <span class="rate-value" id="rate-value">1</span>
+            <button class="rate-btn" id="up-rate" type="button">up</button>
+        </div>
 
         <div class="display" id="display">
             <div class="roll-display">
                 <div class="roll">
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>2</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>1</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell">            <pre>C</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell">            <pre>7</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>1</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>3</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>2</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>1</pre> </div>
                 </div>
             </div>
             <div class="roll-display">
                 <div class="roll">
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell">            <pre>7</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>2</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>3</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>2</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>1</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell">            <pre>C</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>1</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>1</pre> </div>
                 </div>
             </div>
             <div class="roll-display">
                 <div class="roll">
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>1</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>1</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>2</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>3</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>1</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell">            <pre>7</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell ">           <pre>2</pre> </div>
-                    <div class="roll-cell empty-cell"> <pre> </pre> </div>
+                    <div class="roll-cell empty-cell"> <pre>B</pre> </div>
                     <div class="roll-cell">            <pre>C</pre> </div>
                 </div>
             </div>
             <div class="finish-line"></div>
         </div>
+
+        <button class="start-rolling" id="max-start" type="button">Max&Start</button>
+        <button class="start-rolling" id="start-rolling" type="button">Start</button>
+        <!-- I don't know what the button "выплата" should do, that is why it is not here. -->
     </div>
 
 </body>
