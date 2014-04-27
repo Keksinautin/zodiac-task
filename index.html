@@ -24,8 +24,10 @@
         }
 
         .display {
-            margin: 150px 5px;
+            margin: 40px 5px;
             position: relative;
+            text-align: center;
+            width: 160px;
         }
 
 
@@ -61,7 +63,7 @@
             border: 1px solid #3C763D;
             position: absolute;
             top: 105px;
-            width: 200px;
+            width: 160px;
         }
 
     </style>
@@ -71,46 +73,62 @@
             'use strict';
 
             window.onload = function(){
-                var doc = window.document,
+                var doc  = window.document,
+                    Math = window.Math,
 
                     displayElement  = doc.getElementById('display'),
-                    rollDisplay1    = displayElement.firstElementChild,
-                    roll1           = rollDisplay1.firstElementChild,
+                    rollFirst       = displayElement.firstElementChild.firstElementChild,
                     rolls           = displayElement.getElementsByClassName('roll'),
-                    roll1StartTop   = parseInt(window.getComputedStyle(roll1, null).top),
-                    rollDisplayHigh = parseInt(window.getComputedStyle(rollDisplay1, null).height),
-                    rollCellHigh    = parseInt(window.getComputedStyle(roll1.firstElementChild, null).height),
+                    rollStartTop    = parseInt(window.getComputedStyle(rollFirst, null).top),
+                    rollCellHigh    = parseInt(window.getComputedStyle(rollFirst.firstElementChild, null).height),
+
+                    getIntRand = function(min, max) {
+                        return Math.floor(Math.random() * (max - min + 1) + min);
+                    },
 
                     runRoll = function() {
-                        var iterationTime = 50,     //mSec
-                            totalShift    = 16500,  //px
-                            timeRolling   = 32000,  //mSec
+                        var iterationTime = 50, //mSec
 
                             randParams = [
                                 {
-                                    minTime: 10,
-                                    maxTime: 20,
+                                    minTime:  10,
+                                    maxTime:  20,
                                     minShift: 50,
-                                    maxShift: 170
+                                    maxShift: 80
                                 },
                                 {
-                                    maxTime: 30,
-                                    maxShift: 200
+                                    maxTime:  30,
+                                    maxShift: 110
                                 },
                                 {
-                                    maxTime: 40,
-                                    maxShift: 320
+                                    maxTime:  40,
+                                    maxShift: 140
+                                }
+                            ],
+                            rollingParams = [
+                                {
+                                    timeRolling:            0,
+                                    totalShift:             0,
+                                    iterationTotalCount:    0,
+                                    startSpeed:             0,
+                                    deceleration:           0,
+                                    currentAdditionalShift: 0,
+                                    passedShift:            0
                                 }
                             ],
 
-                            iterationTotalCount = window.Math.ceil(timeRolling / iterationTime),
-                            startSpeed          = (2 * totalShift) / iterationTotalCount,
-                            deceleration        = startSpeed / iterationTotalCount,
-
+                            //iterations global vars
                             iterationCurrentNum = 0,
-                            currentAdditionalShift = 0,
-                            passedShift = 0,
+                            maxIterationCount   = 0,
                             timerId,
+
+                            //cycle vars
+                            rollIndex = 0,
+                            roll,
+                            prevMinTime,
+                            prevMinShift,
+                            rollRandParams,
+                            curRollingParams,
 
                             intervalRotator = function(){
                                 var currentShift,
@@ -119,67 +137,91 @@
                                     additionalShift,
                                     additionalMoved;
 
-                                if (++iterationCurrentNum === iterationTotalCount) {
+                                if (++iterationCurrentNum === maxIterationCount) {
                                     window.clearInterval(timerId);
-                                    currentShift = totalShift;
-                                } else {
-                                    currentShift = window.Math.round(
-                                            startSpeed * iterationCurrentNum -
-                                                (deceleration * window.Math.pow(iterationCurrentNum, 2)) / 2
-                                    );
                                 }
 
-                                requiredShift = currentShift - passedShift;
+                                for (rollIndex = 0; rollIndex < rolls.length; rollIndex++) {
+                                    curRollingParams = rollingParams[rollIndex];
+                                    roll             = rolls[rollIndex];
 
-                                if (requiredShift > 0) {
-                                    movedCount = window.Math.floor(requiredShift / rollCellHigh);
-                                    additionalShift = requiredShift - movedCount * rollCellHigh +
-                                            currentAdditionalShift;
-
-                                    if (additionalShift > 0) {
-                                        if (additionalShift >= rollCellHigh) {
-                                            additionalMoved = window.Math.floor(additionalShift / rollCellHigh);
-                                            movedCount += additionalMoved;
-                                            additionalShift = additionalShift - additionalMoved * rollCellHigh;
+                                    if (iterationCurrentNum <= curRollingParams.iterationTotalCount) {
+                                        if (iterationCurrentNum === curRollingParams.iterationTotalCount) {
+                                            currentShift = curRollingParams.totalShift;
+                                        } else {
+                                            currentShift = Math.round(
+                                              curRollingParams.startSpeed * iterationCurrentNum -
+                                                (curRollingParams.deceleration * Math.pow(iterationCurrentNum, 2)) / 2
+                                            );
                                         }
-                                        roll1.style.top =
-                                                (roll1StartTop + (currentAdditionalShift = additionalShift)) + 'px';
-                                    }
 
-                                    while (movedCount-- > 0) {
-                                        roll1.insertBefore(roll1.lastElementChild, roll1.firstElementChild);
+                                        requiredShift = currentShift - curRollingParams.passedShift;
+
+                                        if (requiredShift > 0) {
+                                            movedCount = Math.floor(requiredShift / rollCellHigh);
+                                            additionalShift = requiredShift - movedCount * rollCellHigh +
+                                                    curRollingParams.currentAdditionalShift;
+
+                                            if (additionalShift > 0) {
+                                                if (additionalShift >= rollCellHigh) {
+                                                    additionalMoved = Math.floor(additionalShift / rollCellHigh);
+                                                    movedCount += additionalMoved;
+                                                    additionalShift = additionalShift - additionalMoved * rollCellHigh;
+                                                }
+                                                roll.style.top =
+                                                    (rollStartTop +
+                                                        (curRollingParams.currentAdditionalShift = additionalShift)
+                                                    ) + 'px';
+                                            }
+
+                                            while (movedCount-- > 0) {
+                                                roll.insertBefore(roll.lastElementChild, roll.firstElementChild);
+                                            }
+                                        }
+
+                                        curRollingParams.passedShift = currentShift;
                                     }
                                 }
-
-
-                                passedShift = currentShift;
-//                                console.table(
-//                                        [{
-//                                            iNum: iterationCurrentNum,
-//                                            curShift: currentShift,
-//                                            reqShift: requiredShift,
-//                                            //movCount: movedCount,
-//                                            movCount1: window.Math.floor(requiredShift / rollCellHigh),
-//                                            addShift: additionalShift,
-//                                            addShift1: requiredShift - window.Math.floor(requiredShift / rollCellHigh) * rollCellHigh,
-//                                            currAddShift: currentAdditionalShift
-//                                        }]
-//                                );
-
                             };
+
+                        for (rollIndex = 0; rollIndex < rolls.length; rollIndex++) {
+                            rollingParams[rollIndex] == null && (rollingParams[rollIndex] = {});
+                            curRollingParams = rollingParams[rollIndex];
+                            rollRandParams   = randParams[rollIndex];
+
+                            prevMinTime = getIntRand(
+                                rollRandParams.minTime == null ? prevMinTime + 1 : rollRandParams.minTime,
+                                rollRandParams.maxTime
+                            );
+                            prevMinShift = getIntRand(
+                                rollRandParams.minShift == null ? prevMinShift + 1 : rollRandParams.minShift,
+                                rollRandParams.maxShift
+                            );
+
+                            curRollingParams.timeRolling = prevMinTime * 1000;
+                            curRollingParams.totalShift  = rollCellHigh * 2 * prevMinShift;
+
+                            curRollingParams.iterationTotalCount = Math.ceil(
+                                    curRollingParams.timeRolling / iterationTime
+                            );
+                            if (curRollingParams.iterationTotalCount > maxIterationCount) {
+                                maxIterationCount = curRollingParams.iterationTotalCount;
+                            }
+
+                            curRollingParams.startSpeed =
+                                    (2 * curRollingParams.totalShift) / curRollingParams.iterationTotalCount;
+                            curRollingParams.deceleration =
+                                    curRollingParams.startSpeed / curRollingParams.iterationTotalCount;
+
+                            curRollingParams.currentAdditionalShift = 0;
+                            curRollingParams.passedShift = 0;
+                        }
 
                         timerId = window.setInterval(intervalRotator, iterationTime);
                         intervalRotator();
-
-                        console.log(rolls);
-
-
                     };
 
                 runRoll();
-
-
-
             };
         })(this);
 
